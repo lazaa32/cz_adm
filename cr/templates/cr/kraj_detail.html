@@ -1,0 +1,40 @@
+<html>
+{% load leaflet_tags %}
+{% load static %}
+<head>
+    {% leaflet_js %}
+    {% leaflet_css %}
+    <style media="screen">
+        #kraj_map {
+            width: 100%;
+            height: 100%
+        }
+    </style>
+    <script src="{% static 'leaflet-ajax/dist/leaflet.ajax.min.js' %}"></script>
+    <script src="{% static 'spin.js/spin.min.js' %}"></script>
+    <script src="{% static 'leaflet-spin/leaflet.spin.js' %}"></script>
+</head>
+<body>
+<script type="text/javascript">
+    function map_init_basic(map, options) {
+
+        var geojsonMestaLayer = new L.GeoJSON.AJAX("{% url 'kraj_detail_mesta' kraj_id %}", {
+            onEachFeature: function (feature, layer) {
+                layer.bindPopup(feature.properties.obec.toString());
+            }
+        });
+        geojsonMestaLayer.addTo(map);
+
+        var geojsonKrajLayer = new L.GeoJSON.AJAX("{% url 'kraj_detail' kraj_id %}", {
+                onEachFeature: function (feature, layer) {
+                    var id_okres = feature.properties.id_2.toString();
+                    var name_okres = feature.properties.name_2.toString();
+                    layer.bindPopup(name_okres+'</br><a href="http://127.0.0.1:8000/okres/'+id_okres+'">Okres detail</a>');
+            }
+            })
+        geojsonKrajLayer.addTo(map);
+    }
+</script>
+{% leaflet_map "kraj_map" callback="window.map_init_basic" %}
+</body>
+</html>
